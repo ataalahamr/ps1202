@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ar" manifest="cache.appcache">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PS4-Bios</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: none; /* يُفتح فقط بعد اكتمال التحقق من التفعيل */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+    direction: ltr;
+  }
+
+  /* الشريط العلوي */
+  .top-bar {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .console-btn {
+    padding: 6px 16px;
+    background: rgba(15, 23, 42, 0.6);
+    color: #94a3b8;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+  }
+
+  .console-btn:hover {
+    color: #ffffff;
+    border-color: #00d4ff;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+  }
+
+  .device-badge {
+    padding: 6px 14px;
+    background: rgba(15, 23, 42, 0.6);
+    color: #00d4ff;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 0.9rem;
+    backdrop-filter: blur(4px);
+  }
+
+  /* حاوية اللوجو الرئيسي */
+  .main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 900px;
+    padding: 20px;
+  }
+
+  .brand-logo {
+    max-width: 100%;
+    height: auto;
+    max-height: 65vh;
+    object-fit: contain;
+    filter: drop-shadow(0 0 25px rgba(0, 150, 255, 0.15));
+  }
+
+  /* شريط الحالة السفلي المطابق للصورة */
+  .status-card {
+    margin-top: 20px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 10px 25px;
+    text-align: center;
+    min-width: 260px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .status-title {
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .status-detail {
+    color: #00d4ff;
+    font-size: 0.75rem;
+    font-family: monospace;
+    letter-spacing: 0.5px;
+  }
+
+  /* نافذة السجلات (Console) */
+  #console-box {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    height: 140px;
+    background: rgba(5, 10, 20, 0.95);
+    border: 1px solid #00d4ff;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: monospace;
+    font-size: 12px;
+    color: #00ff88;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+  }
+
+  #console-box div {
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- الشريط العلوي -->
+<div class="top-bar">
+  <button class="console-btn" onclick="toggleConsole()">Console</button>
+  <div class="device-badge" id="device-key-badge">AT-0000</div>
+</div>
+
+<!-- المحتوى الرئيسي -->
+<div class="main-container">
+  <!-- اللوجو الخاص بك كاملاً -->
+  <img src="logo.jpg" alt="Ataallah Tech Logo" class="brand-logo">
+
+  <!-- شريط الحالة المخصص المطابق للشكل المطلوب -->
+  <div class="status-card">
+    <div class="status-title" id="status-title">Eng.Amr Ataallah Bios Exploit</div>
+    <div class="status-detail" id="status-detail">..Stabilizing RAM & Executing</div>
+  </div>
+</div>
+
+<!-- نافذة السجلات المخفية -->
+<div id="console-box">
+  <div>[SYSTEM] Console initialized...</div>
+</div>
+
+<!-- Iframe مخفي لتشغيل ملفات الثغرة في الخلفية -->
+<iframe id="bg-executor" style="display:none;"></iframe>
+
+<script>
+const FIREBASE_URL = "https://ps4-control-7ad50-default-rtdb.firebaseio.com";
+const SECRET_SALT = "MyPS4MasterKey2026";
+
+function logToConsole(msg) {
+  const cBox = document.getElementById("console-box");
+  if (cBox) {
+    cBox.innerHTML += `<div>> ${msg}</div>`;
+    cBox.scrollTop = cBox.scrollHeight;
+  }
+}
+
+function toggleConsole() {
+  const cBox = document.getElementById("console-box");
+  cBox.style.display = cBox.style.display === "block" ? "none" : "block";
+}
+
+function getDeviceKeyNumber() {
+  let savedKey = localStorage.getItem("device_key_num");
+  if (!savedKey) {
+    let str = navigator.userAgent + screen.width + screen.height;
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0;
+    }
+    savedKey = (Math.abs(hash) % 8999) + 1000;
+    localStorage.setItem("device_key_num", savedKey);
+  }
+  return parseInt(savedKey, 10);
+}
+
+// 1. فحص حالة الحظر من الفايربيز
+async function checkFirebaseBlockStatus(deviceKeyStr) {
+  if (!navigator.onLine) return true;
+
+  try {
+    let res = await fetch(`${FIREBASE_URL}/devices/${deviceKeyStr}.json?t=${Date.now()}`);
+    if (res.ok) {
+      let deviceData = await res.json();
+
+      if (deviceData && deviceData.status === "blocked") {
+        document.write(`
+          <div style="text-align:center; margin-top:35vh; color:#ff3333; font-family:sans-serif; background:#000; height:100vh; padding-top:20px;">
+            <h1>تم حظر هذا الجهاز من قبل المسؤول!</h1>
+            <p style="color:#00d4ff; font-family:monospace;">Device ID: ${deviceKeyStr}</p>
+          </div>
+        `);
+        window.stop();
+        return false;
+      }
+
+      if (!deviceData) {
+        await fetch(`${FIREBASE_URL}/devices/${deviceKeyStr}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: "active",
+            registered_at: new Date().toISOString()
+          })
+        });
+      }
+    }
+  } catch (e) {
+    logToConsole("Firebase offline or bypassed.");
+  }
+  return true;
+}
+
+// 2. خوارزمية التفعيل الدائم والمؤقت
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash).toString(16).toUpperCase();
+}
+
+function validateKeyLocally(deviceNum, enteredKey) {
+  let cleanKey = enteredKey.trim().toUpperCase();
+
+  let expectedPermKey = "P-" + simpleHash(deviceNum + SECRET_SALT).substring(0, 6);
+  if (cleanKey === expectedPermKey) return { valid: true, type: "perm" };
+
+  let usageCounter = localStorage.getItem("one_time_counter") || "0";
+  let expectedOnceKey = "1T-" + simpleHash(deviceNum + usageCounter + SECRET_SALT).substring(0, 6);
+
+  if (cleanKey === expectedOnceKey) {
+    return { valid: true, type: "once", currentCounter: usageCounter };
+  }
+
+  return { valid: false };
+}
+
+function unlockAndShowPage(deviceKeyStr) {
+  document.body.style.display = "flex";
+  document.getElementById("device-key-badge").textContent = deviceKeyStr;
+  runExploitCore();
+}
+
+// 3. المحرك الرئيسي للتحقق والتفعيل
+(async function initProtection() {
+  const deviceNum = getDeviceKeyNumber();
+  const deviceKeyStr = "AT-" + deviceNum;
+
+  let isAllowed = await checkFirebaseBlockStatus(deviceKeyStr);
+  if (!isAllowed) return;
+
+  if (localStorage.getItem("is_activated_perm") === "true") {
+    unlockAndShowPage(deviceKeyStr);
+    return;
+  }
+
+  let promptMessage = `الجهاز غير مفعل!\n\nDevice Key: ${deviceKeyStr}\n\nأرسل هذا الكود عبر الواتساب على هذا الرقم 01223739286 للحصول على كود تفعيل البايوس:`;
+  let userKey = prompt(promptMessage);
+
+  if (userKey) {
+    let result = validateKeyLocally(deviceNum, userKey);
+
+    if (result.valid) {
+      if (result.type === "perm") {
+        localStorage.setItem("is_activated_perm", "true");
+        alert("تم التفعيل الكلي والدائم بنجاح!");
+      } else if (result.type === "once") {
+        let nextCounter = parseInt(result.currentCounter, 10) + 1;
+        localStorage.setItem("one_time_counter", nextCounter.toString());
+        alert("تم التفعيل لهذه المرة بنجاح!");
+      }
+      unlockAndShowPage(deviceKeyStr);
+    } else {
+      document.write("<h2 style='color:red; text-align:center; margin-top:40vh; background:#000; font-family:sans-serif;'>عفواً، كود التفعيل غير صحيح أو مستخدم من قبل!</h2>");
+      window.stop();
+    }
+  } else {
+    document.write("<h2 style='color:red; text-align:center; margin-top:40vh; background:#000; font-family:sans-serif;'>تم إغلاق الصفحة لعدم إدخال كود التفعيل!</h2>");
+    window.stop();
+  }
+})();
+
+// 4. تشغيل وتوجيه الثغرة في الخلفية
+function runExploitCore() {
+  var titleEl = document.getElementById("status-title");
+  var detailEl = document.getElementById("status-detail");
+
+  function setStatus(title, detail) {
+    if (title) titleEl.textContent = title;
+    if (detail) detailEl.textContent = detail;
+    logToConsole((title || "") + " | " + (detail || ""));
+  }
+
+  var params = new URLSearchParams(location.search);
+  var key = null, fwnum = null;
+  var m = /PlayStation\s+4[\/ ](\d+)\.(\d+)/.exec(navigator.userAgent);
+
+  if (m) {
+    var minor = parseInt(m[2], 16), ms = minor.toString(16);
+    if (ms.length < 2) ms = "0" + ms;
+    key = m[1] + "." + ms;
+    fwnum = parseInt(m[1], 10) * 100 + parseInt(ms, 10);
+  }
+
+  var bug = null, forced = params.get("bug");
+
+  if (forced === "lapse" || forced === "poops") { bug = forced; }
+  else if (fwnum <= 1202) { bug = "lapse"; }
+  else if (fwnum >= 1250) { bug = "poops"; }
+
+  if (!bug) {
+    setStatus("Eng.Amr Ataallah Bios Exploit", "Unsupported Firmware Version!");
+    return;
+  }
+
+  var target = (bug === "lapse" ? "run_lapse.html" : "run_poops.html") + location.search;
+
+  function go() {
+    setStatus("Eng.Amr Ataallah Bios Exploit", "...Stabilizing RAM & Executing");
+    document.getElementById("bg-executor").src = target;
+  }
+
+  var ac = window.applicationCache;
+  if (!ac || !document.documentElement.hasAttribute("manifest")) { go(); }
+  else if (!navigator.onLine) { setStatus("Eng.Amr Ataallah Bios Exploit", "Offline Mode Ready"); go(); }
+  else if (ac.status === ac.IDLE) { setStatus("Eng.Amr Ataallah Bios Exploit", "Cache Ready"); go(); }
+  else {
+    ac.addEventListener("downloading", function () { setStatus("Eng.Amr Ataallah Bios Exploit", "Downloading Cache..."); }, false);
+    ac.addEventListener("progress", function (e) {
+      if (e && e.total) {
+        let p = Math.round((e.loaded / e.total) * 100);
+        setStatus("Eng.Amr Ataallah Bios Exploit", "Caching: " + p + "%");
+      }
+    }, false);
+    ac.addEventListener("cached", function () { setStatus("Eng.Amr Ataallah Bios Exploit", "Cache Complete"); go(); }, false);
+    ac.addEventListener("noupdate", function () { setStatus("Eng.Amr Ataallah Bios Exploit", "Cache Up-To-Date"); go(); }, false);
+    ac.addEventListener("error", function () { go(); }, false);
+  }
+}
+</script>
+</body>
+</html>
