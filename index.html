@@ -6,16 +6,6 @@
 <title>PS4-Bios</title>
 
 <style>
-  :root {
-    --main-orange: #ff5500;
-    --light-orange: #ff8800;
-    --dark-orange: #cc4400;
-    --bg-dark: #121212;
-    --card-bg: #1e1e1e;
-    --text-light: #ffffff;
-    --text-muted: #aaaaaa;
-  }
-
   * {
     box-sizing: border-box;
     margin: 0;
@@ -23,179 +13,131 @@
   }
 
   body {
+    background-color: #000000;
+    color: #ffffff;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-dark);
-    color: var(--text-light);
-    display: none; /* إخفاء الصفحة حتى اكتمال التفعيل */
+    display: none; /* يُفتح فقط بعد اكتمال التحقق من التفعيل */
     flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    direction: rtl;
+    overflow: hidden;
     position: relative;
+    direction: ltr;
   }
 
   /* الشريط العلوي */
   .top-bar {
     position: fixed;
-    top: 15px;
-    left: 15px;
-    right: 15px;
+    top: 20px;
+    left: 20px;
+    right: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 1000;
+  }
+
+  .console-btn {
+    padding: 6px 16px;
+    background: rgba(15, 23, 42, 0.6);
+    color: #94a3b8;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+  }
+
+  .console-btn:hover {
+    color: #ffffff;
+    border-color: #00d4ff;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
   }
 
   .device-badge {
     padding: 6px 14px;
-    background: rgba(0, 0, 0, 0.85);
-    color: var(--light-orange);
-    border: 1px solid var(--main-orange);
-    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.6);
+    color: #00d4ff;
+    border: 1px solid #334155;
+    border-radius: 6px;
     font-weight: bold;
     font-family: monospace;
     font-size: 0.9rem;
-    box-shadow: 0 0 10px rgba(255, 85, 0, 0.3);
+    backdrop-filter: blur(4px);
   }
 
-  .console-btn {
-    padding: 6px 14px;
-    background: rgba(0, 0, 0, 0.85);
-    color: #fff;
-    border: 1px solid var(--light-orange);
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 0.85rem;
-    cursor: pointer;
-    box-shadow: 0 0 10px rgba(255, 136, 0, 0.3);
-    transition: 0.2s;
-  }
-
-  .console-btn:hover {
-    background: var(--main-orange);
-    color: #fff;
-  }
-
-  /* الكارت الرئيسي */
-  .card {
-    background-color: var(--card-bg);
-    border-radius: 20px;
-    padding: 40px;
-    width: 90%;
-    max-width: 500px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 85, 0, 0.2);
-    border: 1px solid rgba(255, 85, 0, 0.3);
-  }
-
-  .logo-container {
-    width: 100px;
-    height: 100px;
-    margin: 0 auto 20px;
-    background: linear-gradient(135deg, var(--light-orange), var(--dark-orange));
-    border-radius: 50%;
+  /* حاوية اللوجو الرئيسي */
+  .main-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    box-shadow: 0 0 15px rgba(255, 85, 0, 0.5);
-  }
-
-  .logo-container svg {
-    width: 55px;
-    height: 55px;
-    fill: #ffffff;
-  }
-
-  h1 {
-    font-size: 2.2rem;
-    color: var(--light-orange);
-    margin-bottom: 5px;
-  }
-
-  .subtitle {
-    font-size: 0.95rem;
-    color: var(--text-muted);
-    margin-bottom: 25px;
-  }
-
-  .info-box {
-    background-color: #2a2a2a;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 20px;
-    border-right: 4px solid var(--main-orange);
-  }
-
-  .info-item {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 0.95rem;
-  }
-
-  .info-item:last-child {
-    margin-bottom: 0;
-  }
-
-  .info-label {
-    color: var(--text-muted);
-  }
-
-  .info-value {
-    font-weight: bold;
-    color: var(--text-light);
-  }
-
-  .status-text {
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: var(--light-orange);
-    margin: 15px 0;
-  }
-
-  .progress-container {
-    background-color: #2a2a2a;
-    border-radius: 10px;
-    height: 12px;
+    justify-content: center;
     width: 100%;
-    overflow: hidden;
-    margin-bottom: 15px;
+    max-width: 900px;
+    padding: 20px;
   }
 
-  .progress-bar {
-    background: linear-gradient(90deg, var(--dark-orange), var(--light-orange));
-    height: 100%;
-    width: 0%;
-    transition: width 0.3s ease;
+  .brand-logo {
+    max-width: 100%;
+    height: auto;
+    max-height: 65vh;
+    object-fit: contain;
+    filter: drop-shadow(0 0 25px rgba(0, 150, 255, 0.15));
   }
 
-  .timer {
-    font-size: 2rem;
-    font-weight: bold;
+  /* شريط الحالة السفلي المطابق للصورة */
+  .status-card {
+    margin-top: 20px;
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 10px 25px;
+    text-align: center;
+    min-width: 260px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .status-title {
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+
+  .status-detail {
+    color: #00d4ff;
+    font-size: 0.75rem;
     font-family: monospace;
-    color: var(--text-light);
+    letter-spacing: 0.5px;
   }
 
-  /* نافذة الـ Console */
+  /* نافذة السجلات (Console) */
   #console-box {
     display: none;
     position: fixed;
     bottom: 20px;
-    left: 15px;
-    right: 15px;
-    height: 130px;
-    background: rgba(0, 0, 0, 0.95);
-    border: 1px solid var(--main-orange);
+    left: 20px;
+    right: 20px;
+    height: 140px;
+    background: rgba(5, 10, 20, 0.95);
+    border: 1px solid #00d4ff;
     border-radius: 8px;
-    padding: 10px;
+    padding: 12px;
     font-family: monospace;
-    font-size: 13px;
-    color: #ff8800;
+    font-size: 12px;
+    color: #00ff88;
     overflow-y: auto;
     z-index: 1000;
-    box-shadow: 0 0 15px rgba(255, 85, 0, 0.2);
-    direction: ltr;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+  }
+
+  #console-box div {
+    margin-bottom: 4px;
   }
 </style>
 </head>
@@ -207,42 +149,24 @@
   <div class="device-badge" id="device-key-badge">AT-0000</div>
 </div>
 
-<div class="card">
-  <div class="logo-container">
-    <svg viewBox="0 0 24 24">
-      <path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-10 7H8v3H6v-3H3v-2h3V8h2v3h3v2zm4.5 2c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm3-3c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-    </svg>
+<!-- المحتوى الرئيسي -->
+<div class="main-container">
+  <!-- اللوجو الخاص بك كاملاً -->
+  <img src="logo.jpg" alt="Ataallah Tech Logo" class="brand-logo">
+
+  <!-- شريط الحالة المخصص المطابق للشكل المطلوب -->
+  <div class="status-card">
+    <div class="status-title" id="status-title">Eng.Amr Ataallah Bios Exploit</div>
+    <div class="status-detail" id="status-detail">..Stabilizing RAM & Executing</div>
   </div>
-
-  <h1>PS4-Bios</h1>
-  <div class="subtitle">تفعيلات وتعديلات البلايستيشن</div>
-
-  <div class="info-box">
-    <div class="info-item">
-      <span class="info-label">إصدار النظام:</span>
-      <span class="info-value" id="fw-version">جاري الفحص...</span>
-    </div>
-    <div class="info-item">
-      <span class="info-label">نوع الثغرة:</span>
-      <span class="info-value" id="exploit-type">جاري الفحص...</span>
-    </div>
-  </div>
-
-  <div class="status-text" id="status-text">جاري فحص النظام...</div>
-
-  <div class="progress-container">
-    <div class="progress-bar" id="progress-bar"></div>
-  </div>
-
-  <div class="timer" id="timer">00:00</div>
 </div>
 
-<!-- نافذة عرض العمليات المخفية -->
+<!-- نافذة السجلات المخفية -->
 <div id="console-box">
   <div>[SYSTEM] Console initialized...</div>
 </div>
 
-<!-- Iframe مخفي لتشغيل الثغرة والعمليات في الخلفية -->
+<!-- Iframe مخفي لتشغيل ملفات الثغرة في الخلفية -->
 <iframe id="bg-executor" style="display:none;"></iframe>
 
 <script>
@@ -277,7 +201,7 @@ function getDeviceKeyNumber() {
   return parseInt(savedKey, 10);
 }
 
-// 1. فحص الحظر من السيرفر
+// 1. فحص حالة الحظر من الفايربيز
 async function checkFirebaseBlockStatus(deviceKeyStr) {
   if (!navigator.onLine) return true;
 
@@ -290,7 +214,7 @@ async function checkFirebaseBlockStatus(deviceKeyStr) {
         document.write(`
           <div style="text-align:center; margin-top:35vh; color:#ff3333; font-family:sans-serif; background:#000; height:100vh; padding-top:20px;">
             <h1>تم حظر هذا الجهاز من قبل المسؤول!</h1>
-            <p style="color:#ff8800; font-family:monospace;">Device ID: ${deviceKeyStr}</p>
+            <p style="color:#00d4ff; font-family:monospace;">Device ID: ${deviceKeyStr}</p>
           </div>
         `);
         window.stop();
@@ -314,7 +238,7 @@ async function checkFirebaseBlockStatus(deviceKeyStr) {
   return true;
 }
 
-// 2. خوارزمية التفعيل
+// 2. خوارزمية التفعيل الدائم والمؤقت
 function simpleHash(str) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -346,7 +270,7 @@ function unlockAndShowPage(deviceKeyStr) {
   runExploitCore();
 }
 
-// 3. محرك الحماية والتفعيل
+// 3. المحرك الرئيسي للتحقق والتفعيل
 (async function initProtection() {
   const deviceNum = getDeviceKeyNumber();
   const deviceKeyStr = "AT-" + deviceNum;
@@ -359,7 +283,7 @@ function unlockAndShowPage(deviceKeyStr) {
     return;
   }
 
-  let promptMessage = `الجهاز غير مفعل!\n\nDevice Key: ${deviceKeyStr}\n\nأرسل هذا الكود عبر الواتساب على هاذ الرقم 01223739286 للحصول على كود تفعيل البايوس:`;
+  let promptMessage = `الجهاز غير مفعل!\n\nDevice Key: ${deviceKeyStr}\n\nأرسل هذا الكود عبر الواتساب على هذا الرقم 01223739286 للحصول على كود تفعيل البايوس:`;
   let userKey = prompt(promptMessage);
 
   if (userKey) {
@@ -385,77 +309,61 @@ function unlockAndShowPage(deviceKeyStr) {
   }
 })();
 
-// 4. تشغيل الثغرة وتحديث العداد والتصميم
+// 4. تشغيل وتوجيه الثغرة في الخلفية
 function runExploitCore() {
-  var statusEl = document.getElementById("status-text");
-  var progressEl = document.getElementById("progress-bar");
-  var timerEl = document.getElementById("timer");
-  var fwEl = document.getElementById("fw-version");
-  var exploitEl = document.getElementById("exploit-type");
+  var titleEl = document.getElementById("status-title");
+  var detailEl = document.getElementById("status-detail");
 
-  let seconds = 0;
-  setInterval(() => {
-    seconds++;
-    let m = String(Math.floor(seconds / 60)).padStart(2, '0');
-    let s = String(seconds % 60).padStart(2, '0');
-    timerEl.textContent = `${m}:${s}`;
-  }, 1000);
-
-  function setProgress(percent, text) {
-    progressEl.style.width = percent + "%";
-    if (text) {
-      statusEl.textContent = text;
-      logToConsole(text);
-    }
+  function setStatus(title, detail) {
+    if (title) titleEl.textContent = title;
+    if (detail) detailEl.textContent = detail;
+    logToConsole((title || "") + " | " + (detail || ""));
   }
 
   var params = new URLSearchParams(location.search);
   var key = null, fwnum = null;
   var m = /PlayStation\s+4[\/ ](\d+)\.(\d+)/.exec(navigator.userAgent);
-  
-  if (m) { 
-    var minor = parseInt(m[2], 16), ms = minor.toString(16); 
-    if (ms.length < 2) ms = "0" + ms; 
-    key = m[1] + "." + ms; 
-    fwnum = parseInt(m[1], 10) * 100 + parseInt(ms, 10); 
+
+  if (m) {
+    var minor = parseInt(m[2], 16), ms = minor.toString(16);
+    if (ms.length < 2) ms = "0" + ms;
+    key = m[1] + "." + ms;
+    fwnum = parseInt(m[1], 10) * 100 + parseInt(ms, 10);
   }
 
   var bug = null, forced = params.get("bug");
-  
-  if (forced === "lapse" || forced === "poops") { bug = forced; } 
-  else if (fwnum <= 1202) { bug = "lapse"; } 
+
+  if (forced === "lapse" || forced === "poops") { bug = forced; }
+  else if (fwnum <= 1202) { bug = "lapse"; }
   else if (fwnum >= 1250) { bug = "poops"; }
 
-  fwEl.textContent = key ? "V_" + key : "متصفح عادي";
-  exploitEl.textContent = bug ? bug.toUpperCase() + "_CHAIN" : "غير معروف";
-
   if (!bug) {
-    setStatus("إصدار غير مدعوم!");
+    setStatus("Eng.Amr Ataallah Bios Exploit", "Unsupported Firmware Version!");
     return;
   }
 
   var target = (bug === "lapse" ? "run_lapse.html" : "run_poops.html") + location.search;
 
-  function go() { 
-    setProgress(100, "جارٍ تشغيل الثغرة في الخلفية...");
+  function go() {
+    setStatus("Eng.Amr Ataallah Bios Exploit", "...Stabilizing RAM & Executing");
     document.getElementById("bg-executor").src = target;
   }
 
   var ac = window.applicationCache;
   if (!ac || !document.documentElement.hasAttribute("manifest")) { go(); }
-  else if (!navigator.onLine) { setProgress(100, "وضع الأوفلاين نشط"); go(); }
-  else if (ac.status === ac.IDLE) { setProgress(100, "الكاش جاهز للاستخدام"); go(); }
+  else if (!navigator.onLine) { setStatus("Eng.Amr Ataallah Bios Exploit", "Offline Mode Ready"); go(); }
+  else if (ac.status === ac.IDLE) { setStatus("Eng.Amr Ataallah Bios Exploit", "Cache Ready"); go(); }
   else {
-    ac.addEventListener("downloading", function () { setProgress(30, "جارٍ سحب الملفات للمرة الأولى..."); }, false);
-    ac.addEventListener("progress", function (e) { 
-      if (e && e.total) { 
+    ac.addEventListener("downloading", function () { setStatus("Eng.Amr Ataallah Bios Exploit", "Downloading Cache..."); }, false);
+    ac.addEventListener("progress", function (e) {
+      if (e && e.total) {
         let p = Math.round((e.loaded / e.total) * 100);
-        setProgress(p, "جارٍ التخزين: " + p + "%"); 
-      } 
+        setStatus("Eng.Amr Ataallah Bios Exploit", "Caching: " + p + "%");
+      }
     }, false);
-    ac.addEventListener("cached", function () { setProgress(100, "اكتمل التخزين أوفلاين"); go(); }, false);
-    ac.addEventListener("noupdate", function () { setProgress(100, "التخزين محدث وجاهز"); go(); }, false);
-    ac.addEventListener("error", function () { setProgress(100, "تخطي الكاش للتشغيل..."); go(); }, false);
+    ac.addEventListener("cached", function () { setStatus("Eng.Amr Ataallah Bios Exploit", "Cache Complete"); go(); }, false);
+    ac.addEventListener("noupdate", function () { setStatus("Eng.Amr Ataallah Bios Exploit", "Cache Up-To-Date"); go(); }, false);
+    ac.addEventListener("error", function () { go(); }, false);
   }
 }
 </script>
