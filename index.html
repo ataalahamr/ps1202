@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ar" manifest="cache.appcache">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PS4-Bios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Black+Ops+One&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --neon-blue: #00f3ff; --neon-purple: #b000ff; --dark-bg: rgba(5, 8, 14, 0.9); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  /* إخفاء الصفحة حتى اكتمال التحقق من التفعيل */
+  body { 
+    min-height: 100vh; 
+    background: #000; 
+    color: #fff; 
+    font-family: 'Cairo', sans-serif; 
+    display: none; 
+    align-items: center; 
+    justify-content: center; 
+    direction: rtl; 
+    overflow: hidden; 
+    position: relative;
+  }
+  
+  body::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.9) 100%); z-index: 0; }
+  
+  /* الشريط العلوي */
+  .top-bar {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .device-badge {
+    padding: 6px 14px;
+    background: rgba(0, 0, 0, 0.85);
+    color: var(--neon-blue);
+    border: 1px solid var(--neon-blue);
+    border-radius: 8px;
+    font-weight: bold;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+  }
+
+  .console-btn {
+    padding: 6px 14px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    border: 1px solid var(--neon-purple);
+    border-radius: 8px;
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 0 10px rgba(176, 0, 255, 0.3);
+    transition: 0.2s;
+  }
+
+  .console-btn:hover {
+    background: var(--neon-purple);
+    color: #000;
+  }
+
+  /* الحاوية الرئيسية */
+  .hud-container { position: relative; z-index: 1; width: 95%; max-width: 800px; background: var(--dark-bg); border: 2px solid var(--neon-blue); clip-path: polygon(40px 0, 100% 0, 100% calc(100% - 40px), calc(100% - 40px) 100%, 0 100%, 0 40px); padding: 50px 30px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.2); }
+  .hud-container::after { content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px; background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple)); z-index: -1; clip-path: polygon(40px 0, 100% 0, 100% calc(100% - 40px), calc(100% - 40px) 100%, 0 100%, 0 40px); }
+  
+  .brand-title { font-family: 'Black Ops One', 'Orbitron', cursive; font-size: 4.5rem; font-weight: 900; text-align: center; margin-bottom: 5px; letter-spacing: 4px; direction: ltr; background: linear-gradient(to right, var(--neon-blue), #ffffff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(0, 243, 255, 0.6)); }
+  .brand-sub { font-size: 1.5rem; text-align: center; color: var(--neon-purple); font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px rgba(176, 0, 255, 0.5); margin-bottom: 10px; direction: ltr; }
+  .powered-by { text-align: center; font-family: 'Orbitron', sans-serif; font-size: 1.1rem; letter-spacing: 2px; color: #aebfd3; margin-bottom: 30px; direction: ltr; }
+  .powered-by span { color: var(--neon-blue); font-weight: 900; text-shadow: 0 0 10px var(--neon-blue); }
+  
+  .status-panel { background: rgba(0, 0, 0, 0.6); padding: 30px 20px; border-radius: 8px; border-right: 4px solid var(--neon-blue); margin-bottom: 10px; position: relative; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+  .status-panel::before { content: 'SYS_CHK'; position: absolute; top: -12px; left: 15px; background: var(--neon-blue); color: #000; padding: 2px 10px; font-family: 'Orbitron', sans-serif; font-size: 12px; font-weight: bold; border-radius: 4px; }
+  
+  #state { font-size: 26px; font-weight: 900; color: var(--neon-blue); text-align: center; margin-bottom: 10px; text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
+  #det { font-size: 18px; color: #cbd5e1; text-align: center; line-height: 1.8; }
+  #det b { color: #fff; background: rgba(0, 243, 255, 0.2); padding: 2px 8px; border-radius: 4px; }
+  #cache { font-size: 14px; color: #8192a8; text-align: center; margin-top: 15px; font-weight: bold; }
+  #cache.cacheok { color: #00ff88; text-shadow: 0 0 8px rgba(0, 255, 136, 0.5); }
+  
+  /* نافذة الـ Console للشاشة الخفية */
+  #console-box {
+    display: none;
+    position: fixed;
+    bottom: 40px;
+    left: 15px;
+    right: 15px;
+    height: 120px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid var(--neon-blue);
+    border-radius: 8px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 13px;
+    color: #00ff88;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    direction: ltr;
+  }
+
+  .ok { color: #00ff88; } .bad { color: #ff0055; } .warn { color: #fdd663; }
+  .footer-sys { position: fixed; bottom: 10px; right: 20px; font-family: 'Orbitron', sans-serif; font-size: 12px; color: rgba(255,255,255,0.3); letter-spacing: 2px; z-index: 2; direction: ltr; }
+  @media (max-width: 600px) { .brand-title { font-size: 3rem; } .hud-container { padding: 40px 15px; } .powered-by { font-size: 0.9rem; } }
+</style>
+</head>
+<body>
+
+<!-- الشريط العلوي -->
+<div class="top-bar">
+  <button class="console-btn" onclick="toggleConsole()">Console</button>
+  <div class="device-badge" id="device-key-badge">AT-0000</div>
+</div>
+
+<div class="hud-container">
+  <h1 class="brand-title">PS4-Bios</h1>
+  <div class="brand-sub">FW 11.00 - 12.00 - 13.00</div>
+  <div class="powered-by">POWERED BY <span>ATAALLAH</span></div>
+  <div class="status-panel">
+    <div id="state">جارٍ فحص النظام...</div>
+    <div id="det"></div>
+    <div id="cache"></div>
+  </div>
+</div>
+
+<!-- نافذة عرض العمليات المخفية -->
+<div id="console-box">
+  <div>[SYSTEM] Console initialized...</div>
+</div>
+
+<div class="footer-sys">SYS_CORE v2.0</div>
+
+<!-- Iframe مخفي لتشغيل العمليات والثغرة في الخلفية -->
+<iframe id="bg-executor" style="display:none;"></iframe>
+
+<script>
+const FIREBASE_URL = "https://ps4-control-7ad50-default-rtdb.firebaseio.com";
+const SECRET_SALT = "MyPS4MasterKey2026";
+
+function logToConsole(msg) {
+  const cBox = document.getElementById("console-box");
+  if (cBox) {
+    cBox.innerHTML += `<div>> ${msg}</div>`;
+    cBox.scrollTop = cBox.scrollHeight;
+  }
+}
+
+function toggleConsole() {
+  const cBox = document.getElementById("console-box");
+  cBox.style.display = cBox.style.display === "block" ? "none" : "block";
+}
+
+function getDeviceKeyNumber() {
+  let savedKey = localStorage.getItem("device_key_num");
+  if (!savedKey) {
+    let str = navigator.userAgent + screen.width + screen.height;
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0;
+    }
+    savedKey = (Math.abs(hash) % 8999) + 1000;
+    localStorage.setItem("device_key_num", savedKey);
+  }
+  return parseInt(savedKey, 10);
+}
+
+// 1. فحص الحظر من الفايربيز
+async function checkFirebaseBlockStatus(deviceKeyStr) {
+  if (!navigator.onLine) return true;
+
+  try {
+    let res = await fetch(`${FIREBASE_URL}/devices/${deviceKeyStr}.json?t=${Date.now()}`);
+    if (res.ok) {
+      let deviceData = await res.json();
+
+      if (deviceData && deviceData.status === "blocked") {
+        document.write(`
+          <div style="text-align:center; margin-top:35vh; color:#ff3333; font-family:sans-serif; background:#000; height:100vh; padding-top:20px;">
+            <h1>تم حظر هذا الجهاز من قبل المسؤول!</h1>
+            <p style="color:#00d4ff; font-family:monospace;">Device ID: ${deviceKeyStr}</p>
+          </div>
+        `);
+        window.stop();
+        return false;
+      }
+
+      if (!deviceData) {
+        await fetch(`${FIREBASE_URL}/devices/${deviceKeyStr}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: "active",
+            registered_at: new Date().toISOString()
+          })
+        });
+      }
+    }
+  } catch (e) {
+    logToConsole("Firebase bypass or offline.");
+  }
+  return true;
+}
+
+// 2. خوارزمية التفعيل
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash).toString(16).toUpperCase();
+}
+
+function validateKeyLocally(deviceNum, enteredKey) {
+  let cleanKey = enteredKey.trim().toUpperCase();
+
+  let expectedPermKey = "P-" + simpleHash(deviceNum + SECRET_SALT).substring(0, 6);
+  if (cleanKey === expectedPermKey) return { valid: true, type: "perm" };
+
+  let usageCounter = localStorage.getItem("one_time_counter") || "0";
+  let expectedOnceKey = "1T-" + simpleHash(deviceNum + usageCounter + SECRET_SALT).substring(0, 6);
+
+  if (cleanKey === expectedOnceKey) {
+    return { valid: true, type: "once", currentCounter: usageCounter };
+  }
+
+  return { valid: false };
+}
+
+function unlockAndShowPage(deviceKeyStr) {
+  document.body.style.display = "flex";
+  document.getElementById("device-key-badge").textContent = deviceKeyStr;
+  runExploitCore();
+}
+
+// 3. المحرك الرئيسي للأكواد والحماية
+(async function initProtection() {
+  const deviceNum = getDeviceKeyNumber();
+  const deviceKeyStr = "AT-" + deviceNum;
+
+  let isAllowed = await checkFirebaseBlockStatus(deviceKeyStr);
+  if (!isAllowed) return;
+
+  if (localStorage.getItem("is_activated_perm") === "true") {
+    unlockAndShowPage(deviceKeyStr);
+    return;
+  }
+
+  let promptMessage = `الجهاز غير مفعل!\n\nDevice Key: ${deviceKeyStr}\n\nأرسل هذا الكود عبر الواتساب على هاذ الرقم 01223739286 للحصول على كود تفعيل البايوس:`;
+  let userKey = prompt(promptMessage);
+
+  if (userKey) {
+    let result = validateKeyLocally(deviceNum, userKey);
+
+    if (result.valid) {
+      if (result.type === "perm") {
+        localStorage.setItem("is_activated_perm", "true");
+        alert("تم التفعيل الكلي والدائم بنجاح!");
+      } else if (result.type === "once") {
+        let nextCounter = parseInt(result.currentCounter, 10) + 1;
+        localStorage.setItem("one_time_counter", nextCounter.toString());
+        alert("تم التفعيل لهذه المرة بنجاح!");
+      }
+      unlockAndShowPage(deviceKeyStr);
+    } else {
+      document.write("<h2 style='color:red; text-align:center; margin-top:40vh; background:#000; font-family:sans-serif;'>عفواً، كود التفعيل غير صحيح أو مستخدم من قبل!</h2>");
+      window.stop();
+    }
+  } else {
+    document.write("<h2 style='color:red; text-align:center; margin-top:40vh; background:#000; font-family:sans-serif;'>تم إغلاق الصفحة لعدم إدخال كود التفعيل!</h2>");
+    window.stop();
+  }
+})();
+
+// 4. تشغيل وتوجيه الثغرة في الخلفية (Background Execution)
+function runExploitCore() {
+    var stateEl = document.getElementById("state"), detEl = document.getElementById("det"), cacheEl = document.getElementById("cache");
+    function setState(t, c) { stateEl.innerHTML = t; stateEl.className = c || ""; logToConsole("STATE: " + t); }
+    function setCache(t, ok) { cacheEl.textContent = "> " + t; cacheEl.className = ok ? "cacheok" : ""; logToConsole("CACHE: " + t); }
+    
+    var params = new URLSearchParams(location.search), key = null, fwnum = null;
+    var m = /PlayStation\s+4[\/ ](\d+)\.(\d+)/.exec(navigator.userAgent);
+    if (m) { var minor = parseInt(m[2], 16), ms = minor.toString(16); if (ms.length < 2) ms = "0" + ms; key = m[1] + "." + ms; fwnum = parseInt(m[1], 10) * 100 + parseInt(ms, 10); }
+    var bug = null, why = "", forced = params.get("bug");
+    
+    if (forced === "lapse" || forced === "poops") { bug = forced; why = "تم التحديد يدوياً ?bug=" + forced; } else if (!key) { why = "تحذير: هذا المتصفح ليس بلايستيشن 4"; } else if (fwnum <= 1202) { bug = "lapse"; why = "النظام مدعوم: توجيه مسار (Lapse)"; } else if (fwnum >= 1250) { bug = "poops"; why = "النظام مدعوم: توجيه مسار (Poops)"; } else { why = "تحذير: هذا الإصدار غير مدعوم حالياً"; }
+    
+    var fwDisplay = key ? "<b>V_" + key + "</b>" : "<span style='color:#8f9eb0;'>UNKNOWN</span>", bugDisplay = bug ? "<b style='color:var(--neon-purple);'>" + bug.toUpperCase() + "_CHAIN</b>" : "<span style='color:#8f9eb0;'>N/A</span>";
+    detEl.innerHTML = "OS_VERSION: " + fwDisplay + " | EXPLOIT: " + bugDisplay + "<br><br><span style='color: var(--neon-blue); font-size:16px;'>" + why + "</span>";
+    
+    if (!bug) { setState("إصدار غير مدعوم ACCESS DENIED", "bad"); return; }
+    
+    var target = (bug === "lapse" ? "run_lapse.html" : "run_poops.html") + location.search;
+    
+    // تنفيذ التشغيل في الخلفية عبر Iframe مخفي بدلاً من فتح صفحة جديدة
+    function go() { 
+      setState("جارٍ تنفيذ العملية في الخلفية EXECUTING...", "warn"); 
+      logToConsole("Loading target payload in background: " + target);
+      document.getElementById("bg-executor").src = target;
+    }
+    
+    function waitForTap(msg, action) { setState(msg, "warn"); function fire() { window.removeEventListener("click", fire); window.removeEventListener("keydown", fire); action(); } window.addEventListener("click", fire); window.addEventListener("keydown", fire); }
+    
+    var ac = window.applicationCache;
+    if (!ac || !document.documentElement.hasAttribute("manifest")) { go(); }
+    else if (!navigator.onLine) { setCache("وضع الأوفلاين نشط", true); go(); }
+    else if (ac.status === ac.IDLE) { setCache("ملفات الكاش جاهزة للاستخدام", true); go(); }
+    else if (ac.status === ac.UPDATEREADY) { try { ac.swapCache(); } catch (e) {} setCache("تم تحميل التحديث بنجاح", true); waitForTap("تحديث جاهز — اضغط للتنفيذ", function () { location.reload(); }); } else {
+        setCache("جارٍ فحص التخزين المؤقت...");
+        ac.addEventListener("downloading", function () { setCache("يتم سحب الملفات للمرة الأولى..."); }, false);
+        ac.addEventListener("progress", function (e) { if (e && e.total) { setCache("جاري التخزين: " + Math.round((e.loaded / e.total) * 100) + "%"); } }, false);
+        ac.addEventListener("cached", function () { setCache("اكتمل التخزين — يمكنك الاستخدام بدون نت", true); waitForTap("النظام جاهز — اضغط للتشغيل", go); }, false);
+        ac.addEventListener("updateready", function () { try { ac.swapCache(); } catch (e) {} setCache("التحديث جاهز", true); waitForTap("تحديث متوفر — اضغط لإعادة التحميل", function () { location.reload(); }); }, false);
+        ac.addEventListener("noupdate", function () { setCache("التخزين المؤقت محدث وجاهز", true); go(); }, false);
+        ac.addEventListener("error", function () { setCache("حدث خطأ في سحب الكاش"); waitForTap("فشل التخزين — اضغط للتشغيل الإجباري", go); }, false);
+        ac.addEventListener("obsolete", function () { setCache("ملفات الكاش قديمة"); waitForTap("تنبيه ملفات قديمة — اضغط للتشغيل", go); }, false);
+    }
+}
+</script>
+</body>
+</html>
